@@ -1,0 +1,24 @@
+{
+  "name": "gogo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel-core": "^6.1.2",
+    "body-parser": "^1.14.1",
+    "co": "^4.6.0",
+    "co-express": "^1.2.1",
+    "config": "^1.16.0",
+    "express": "^4.13.3",
+    "express-useragent": "^0.2.0",
+    "mongorito": "^1.3.6",
+    "notevil": "^1.0.0",
+    "password-generator": "^2.0.2",
+    "shortid": "^2.2.4"
+  }
+}

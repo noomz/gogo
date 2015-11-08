@@ -57,6 +57,7 @@ class ServiceLog extends Model {
 
 function _mask(url, withPasscode) {
   return {
+    id: url.get('_id'),
     to: url.get('to'),
     short: url.get('short'),
     alias: url.get('alias'),
@@ -130,6 +131,7 @@ app.put('/api/url/:id', (req, res, next) => {
       return res.status(401).end();
     }
 
+    url.set('to', req.body.to || url.get('to'));
     url.set('alias', req.body.alias || url.get('alias'));
     url.set('conditions', req.body.conditions || url.get('conditions'));
 

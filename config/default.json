@@ -13,6 +13,8 @@
     "testmode": false
   },
   "log": {
+    "dev": true,
+    "enableLogFile": false,
     "destination": "./log"
   }
 }

@@ -3,26 +3,11 @@
 require('babel-core/register');
 // Config
 let config = require('config');
+let logConfig = config.get('log');
 
 // Utils
 let co = require('co');
 let safeEval = require('notevil');
-let FileStreamRotator = require('file-stream-rotator');
-let fs = require('fs');
-let path = require('path');
-let logConfig = config.get('log');
-let logDestination = path.resolve(logConfig.destination);
-// ensure log directory exists
-/*jshint -W030*/
-fs.existsSync(logDestination) || fs.mkdirSync(logDestination);
-/*jshint +W030*/
-// create a rotating write stream
-let accessLogStream = FileStreamRotator.getStream({
-  filename: logDestination + '/access-%DATE%.log',
-  frequency: 'daily',
-  verbose: false
-});
-
 let app = require('express')();
 // Middlewares
 let bodyParser = require('body-parser');
@@ -35,7 +20,26 @@ if (config.get('enableDDOSprotection')) {
   app.use(ddos.express);
 }
 
-app.use(morgan('combined', { stream: accessLogStream }));
+if (logConfig.dev) {
+  app.use(morgan('dev'));
+}
+if (logConfig.enableLogFile) {
+  let FileStreamRotator = require('file-stream-rotator');
+  let fs = require('fs');
+  let path = require('path');
+  let logDestination = path.resolve(logConfig.destination);
+  // ensure log directory exists
+  /*jshint -W030*/
+  fs.existsSync(logDestination) || fs.mkdirSync(logDestination);
+  /*jshint +W030*/
+  // create a rotating write stream
+  let accessLogStream = FileStreamRotator.getStream({
+    filename: logDestination + '/access-%DATE%.log',
+    frequency: 'daily',
+    verbose: false
+  });
+  app.use(morgan('combined', { stream: accessLogStream }));
+}
 app.use(bodyParser.json());
 app.use(useragent.express());
 // Plugins

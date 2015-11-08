@@ -60,13 +60,17 @@ class Url extends Model {
       this.set('conditions', []);
     }
 
-    let url = yield Url.or([
+    let query = Url.or([
       { 'short': this.get('short') },
-      { 'alias': this.get('alais') }
-    ]).findOne();
+      { 'alias': this.get('alias') }
+    ]);
 
-    if (url &&
-        url.get('_id').toString() !== this.get('_id').toString()) {
+    if (this.get('_id')) {
+      query = query.ne('_id', this.get('_id'));
+    }
+
+    let url = yield query.findOne();
+    if (url) {
       throw new Error('`short` or `alias` is duplicated');
     }
 

@@ -1,22 +1,41 @@
 'use strict';
 
 require('babel-core/register');
-
 // Config
 let config = require('config');
 
-let app = require('express')();
+// Utils
 let co = require('co');
 let safeEval = require('notevil');
+let FileStreamRotator = require('file-stream-rotator');
+let fs = require('fs');
+let path = require('path');
+let logConfig = config.get('log');
+let logDestination = path.resolve(logConfig.destination);
+// ensure log directory exists
+/*jshint -W030*/
+fs.existsSync(logDestination) || fs.mkdirSync(logDestination);
+/*jshint +W030*/
+// create a rotating write stream
+let accessLogStream = FileStreamRotator.getStream({
+  filename: logDestination + '/access-%DATE%.log',
+  frequency: 'daily',
+  verbose: false
+});
+
+let app = require('express')();
 // Middlewares
 let bodyParser = require('body-parser');
 let useragent = require('express-useragent');
-let Ddos = require('ddos');
-let ddos = new Ddos(config.get('DDOSparams'));
+let morgan = require('morgan');
 
 if (config.get('enableDDOSprotection')) {
+  let Ddos = require('ddos');
+  let ddos = new Ddos(config.get('DDOSparams'));
   app.use(ddos.express);
 }
+
+app.use(morgan('combined', { stream: accessLogStream }));
 app.use(bodyParser.json());
 app.use(useragent.express());
 // Plugins
@@ -196,4 +215,7 @@ process.on('SIGINT', () => {
   app.close(); // TODO: error now.
 });
 
-app.listen(config.get('port'));
+let port = config.get('port');
+app.listen(port, () => {
+  console.log(`Listening on port ${port} ...`);
+});

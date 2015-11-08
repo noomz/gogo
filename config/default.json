@@ -11,5 +11,8 @@
     "checkinterval": 1,
     "errormessage": "Error",
     "testmode": false
+  },
+  "log": {
+    "destination": "./log"
   }
 }

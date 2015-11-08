@@ -1,4 +1,9 @@
-# Example curl
+# Installation
+1. `npm install`
+2. `npm start`
+3. To custom configuration, create file `config/local.json`. Read more at https://github.com/lorenwest/node-config/wiki/Configuration-Files
+
+# Example API request with CURL
 
 ## Create short Url (POST)
 ```bash

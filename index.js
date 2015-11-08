@@ -34,6 +34,7 @@ if (logConfig.enableLogFile) {
   /*jshint +W030*/
   // create a rotating write stream
   let accessLogStream = FileStreamRotator.getStream({
+    date_format: 'YYYYMMDD',
     filename: logDestination + '/access-%DATE%.log',
     frequency: 'daily',
     verbose: false

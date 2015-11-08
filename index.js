@@ -85,7 +85,8 @@ function _mask(url, withPasscode) {
     short: url.get('short'),
     alias: url.get('alias'),
     passcode: withPasscode ? url.get('passcode') : null,
-    conditions: url.get('conditions')
+    conditions: url.get('conditions'),
+    private: url.get('private')
   };
 }
 
@@ -137,7 +138,8 @@ app.post('/api/url', (req, res, next) => {
       short: shortid.generate(),
       alias: req.body.alias,
       passcode: passgen(8, false),
-      conditions: req.body.conditions
+      conditions: req.body.conditions,
+      private: req.body.private
     });
 
     yield url.save();
@@ -157,9 +159,19 @@ app.put('/api/url/:id', (req, res, next) => {
     url.set('to', req.body.to || url.get('to'));
     url.set('alias', req.body.alias || url.get('alias'));
     url.set('conditions', req.body.conditions || url.get('conditions'));
+    url.set('private', req.body.private || url.get('private'));
 
     yield url.save();
     res.status(200).jsonp(_mask(url));
+  }).catch(next);
+});
+
+app.get('/api/url', (req, res, next) => {
+  co(function *() {
+    let urls = yield Url.ne('private', true).find();
+    res.jsonp(urls.map(item => {
+      return _mask(item);
+    }));
   }).catch(next);
 });
 

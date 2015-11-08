@@ -1,3 +1,7 @@
+# Requirements
+1. node > v4.0.0
+2. MongoDB
+
 # Installation
 1. `npm install`
 2. `npm start`
@@ -5,10 +9,16 @@
 
 # Example API request with CURL
 
-## Create short Url (POST)
+## List all public URL (GET)
 ```bash
-curl -X POST -d '{"to":"http://opendream.co.th","alias":"opendream"}' http://localhost:8080/api/url --header "Content-Type: application/json"
+curl http://localhost:8080/api/url
 ```
+
+## Create short URL (POST)
+```bash
+curl -X POST -d '{"to":"http://opendream.co.th","alias":"opendream","private":false}' http://localhost:8080/api/url --header "Content-Type: application/json"
+```
+If `private` is not specified then default value `false` will be used.
 
 ### Sample return JSON
 ```json
@@ -18,7 +28,8 @@ curl -X POST -d '{"to":"http://opendream.co.th","alias":"opendream"}' http://loc
   "short": "NJpVgrOze",
   "alias": "opendream",
   "passcode": "Y_5cce9M",
-  "conditions": []
+  "conditions": [],
+  "private": false
 }
 ```
 You need to keep returned `id` and `passcode` to update short URL later.

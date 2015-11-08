@@ -187,6 +187,30 @@ app.get('/api/url/short/:shortUrl', (req, res) => {
   res.status(200).jsonp(_mask(req.shortUrl));
 });
 
+function *_delete(req, res) {
+  let url = req.shortUrl,
+      passcode = req.body.passcode;
+
+  if (!passcode || url.get('passcode') !== passcode) {
+    return res.status(401).end();
+  }
+
+  yield url.remove();
+  res.status(204).jsonp(_mask(url));
+}
+
+app.delete('/api/url/:id', (req, res, next) => {
+  co(function *() {
+    yield _delete(req, res);
+  }).catch(next);
+});
+
+app.delete('/api/url/short/:shortUrl', (req, res, next) => {
+  co(function *() {
+    yield _delete(req, res);
+  }).catch(next);
+});
+
 app.get('/' + config.get('urlPrefix') + ':shortUrl', (req, res, next) => {
   co(function* () {
     let url = req.shortUrl,

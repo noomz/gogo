@@ -2,17 +2,23 @@
 
 require('babel-core/register');
 
+// Config
+let config = require('config');
+
 let app = require('express')();
 let co = require('co');
 let safeEval = require('notevil');
 // Middlewares
 let bodyParser = require('body-parser');
 let useragent = require('express-useragent');
+let Ddos = require('ddos');
+let ddos = new Ddos(config.get('DDOSparams'));
 
+if (config.get('enableDDOSprotection')) {
+  app.use(ddos.express);
+}
 app.use(bodyParser.json());
 app.use(useragent.express());
-// Config
-let config = require('config');
 // Plugins
 let shortid = require('shortid');
 let passgen = require('password-generator');
@@ -43,6 +49,10 @@ class Url extends Model {
 
     yield next;
   }
+}
+
+class ServiceLog extends Model {
+
 }
 
 function _mask(url, withPasscode) {
@@ -136,24 +146,42 @@ app.get('/api/url/short/:shortUrl', (req, res) => {
   res.status(200).jsonp(_mask(req.shortUrl));
 });
 
-app.get('/' + config.get('urlPrefix') + ':shortUrl', (req, res) => {
-  let url = req.shortUrl,
-      redirectTo = req.shortUrl.get('to');
+app.get('/' + config.get('urlPrefix') + ':shortUrl', (req, res, next) => {
+  co(function* () {
+    let url = req.shortUrl,
+        redirectTo = req.shortUrl.get('to');
 
-  for (let condition of url.get('conditions')) {
-    if (!condition || !condition.expression || !condition.to) {
-      continue;
+    for (let condition of url.get('conditions')) {
+      if (!condition || !condition.expression || !condition.to) {
+        continue;
+      }
+
+      let result = safeEval(condition.expression, {
+        useragent: req.useragent
+      });
+      if (result) {
+        redirectTo = condition.to;
+        break;
+      }
     }
 
-    let result = safeEval(condition.expression, {
+    let serviceLog = new ServiceLog({
+      at: new Date(),
+      ip: req.ip,
+      urlId: url.get('_id'),
+      from: url.originalUrl,
+      to: redirectTo,
       useragent: req.useragent
     });
-    if (result) {
-      redirectTo = condition.to;
-      break;
+
+    try {
+      yield serviceLog.save();
+      res.redirect(302, redirectTo);
     }
-  }
-  res.redirect(302, redirectTo);
+    catch (err) {
+      throw err;
+    }
+  }).catch(next);
 });
 
 app.get('/', (req, res) => {

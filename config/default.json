@@ -1,5 +1,15 @@
 {
   "port": 8080,
   "mongodb": "localhost/gogo",
-  "urlPrefix": ""
+  "urlPrefix": "",
+  "enableDDOSprotection": false,
+  "DDOSparams": {
+    "maxcount": 30,
+    "burst": 5,
+    "limit": 20,
+    "maxexpiry": 120,
+    "checkinterval": 1,
+    "errormessage": "Error",
+    "testmode": false
+  }
 }

@@ -61,10 +61,16 @@ class Url extends Model {
       this.set('conditions', []);
     }
 
-    let query = Url.or([
+    let criterias = [
       { 'short': this.get('short') },
-      { 'alias': this.get('alias') }
-    ]);
+      { 'alias': this.get('short') },
+    ];
+    if (this.get('alias')) {
+      criterias.push({ 'short': this.get('alias') });
+      criterias.push({ 'alias': this.get('alias') });
+    }
+
+    let query = Url.or(criterias);
 
     if (this.get('_id')) {
       query = query.ne('_id', this.get('_id'));

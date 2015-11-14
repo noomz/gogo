@@ -3,7 +3,6 @@
 require('babel-core/register');
 // Config
 let config = require('config');
-let logConfig = config.get('log');
 
 // Utils
 let co = require('co');
@@ -12,82 +11,20 @@ let app = require('express')();
 // Middlewares
 let bodyParser = require('body-parser');
 let useragent = require('express-useragent');
-let morgan = require('morgan');
 
-if (config.get('enableDDOSprotection')) {
-  let Ddos = require('ddos');
-  let ddos = new Ddos(config.get('DDOSparams'));
-  app.use(ddos.express);
-}
+// Plugins
+require('./ddos')(app, config);
+require('./log')(app, config);
 
-if (logConfig.dev) {
-  app.use(morgan('dev'));
-}
-if (logConfig.enableLogFile) {
-  let FileStreamRotator = require('file-stream-rotator');
-  let fs = require('fs');
-  let path = require('path');
-  let logDestination = path.resolve(logConfig.destination);
-  // ensure log directory exists
-  /*jshint -W030*/
-  fs.existsSync(logDestination) || fs.mkdirSync(logDestination);
-  /*jshint +W030*/
-  // create a rotating write stream
-  let accessLogStream = FileStreamRotator.getStream({
-    date_format: 'YYYYMMDD',
-    filename: logDestination + '/access-%DATE%.log',
-    frequency: 'daily',
-    verbose: false
-  });
-  app.use(morgan('combined', { stream: accessLogStream }));
-}
 app.use(bodyParser.json());
 app.use(useragent.express());
 // Plugins
 let shortid = require('shortid');
 let passgen = require('password-generator');
-let Mongorito = require('mongorito');
-let Model = Mongorito.Model;
-Mongorito.connect(config.get('mongodb'));
 
-class Url extends Model {
-  configure () {
-    this.before('create', 'validate');
-    this.before('update', 'validate');
-  }
-
-  * validate (next) {
-    if (!this.get('conditions')) {
-      this.set('conditions', []);
-    }
-
-    let criterias = [
-      { 'short': this.get('short') },
-      { 'alias': this.get('short') },
-    ];
-    if (this.get('alias')) {
-      criterias.push({ 'short': this.get('alias') });
-      criterias.push({ 'alias': this.get('alias') });
-    }
-
-    let query = Url.or(criterias);
-
-    if (this.get('_id')) {
-      query = query.ne('_id', this.get('_id'));
-    }
-
-    let url = yield query.findOne();
-    if (url) {
-      throw new Error('`short` or `alias` is duplicated');
-    }
-
-    yield next;
-  }
-}
-
-class ServiceLog extends Model {
-
-}
+let models = require('./models')(app, config);
+let Url = models.Url;
+let ServiceLog = models.ServiceLog;
 
 function _mask(url, withPasscode) {
   return {
@@ -262,8 +199,7 @@ app.get('/', (req, res) => {
 
 // Stop
 process.on('SIGINT', () => {
-  Mongorito.disconnect();
-  app.close(); // TODO: error now.
+  process.exit();
 });
 
 let port = config.get('port');

@@ -120,7 +120,11 @@ app.put('/api/url/:id', (req, res, next) => {
 
 app.get('/api/url', (req, res, next) => {
   co(function *() {
-    let urls = yield Url.ne('private', true).limit(100).sort({ createdAt: -1 }).find();
+    let urls = yield Url.ne('private', true)
+      .limit(100)
+      .sort({ createdAt: -1 })
+      .find();
+
     res.jsonp(urls.map(item => {
       return _mask(item);
     }));

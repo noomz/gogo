@@ -21,7 +21,7 @@
     var body = {
       to: targetForm.val(),
       alias: aliasForm.val(),
-      private: privateForm.val() ? true : false
+      private: privateForm.prop('checked')
     };
 
     $.ajax(config.BASE_API + '/api/url', {

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="./config.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" charset="utf-8">
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-6">
+        <h1>Make your short URL</h1>
+
+        <section id="ui-create">
+          <form method="POST" class="form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Target</label>
+              <div class="col-sm-10">
+                <input type="text" id="form-target" class="form-control"  placeholder="Your URL" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label">Alias</label>
+              <div class="col-sm-10">
+                <input type="text" id="form-alias" class="form-control" placeholder="Custom short URL (optional)">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <input type="checkbox" id="form-private">
+                <label for="form-private">Private? (not show in the list)</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default">Get Short URL!</button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section class="well text-center">
+          Generated short URL
+          <h3 id="ui-result"></h3>
+          <p id="ui-shortened-url"></p>
+        </section>
+      </div>
+
+      <div class="col-md-6">
+        <h2>Public URLs</h2>
+        <button id="refresh-button" type="button" class="btn btn-primary pull-right">Refresh</button>
+        <table class="table table-striped" id="public-list">
+          <thead>
+            <tr>
+              <th>Destination</th>
+              <th>Shortened</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+</html>

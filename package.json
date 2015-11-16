@@ -15,6 +15,7 @@
     "co": "^4.6.0",
     "co-express": "^1.2.1",
     "config": "^1.16.0",
+    "cors": "^2.7.1",
     "ddos": "^0.1.7",
     "express": "^4.13.3",
     "express-useragent": "^0.2.0",

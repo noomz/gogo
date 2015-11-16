@@ -7,15 +7,19 @@ let config = require('config');
 // Utils
 let co = require('co');
 let safeEval = require('notevil');
-let app = require('express')();
+let express = require('express');
+let app = express();
 // Middlewares
 let bodyParser = require('body-parser');
 let useragent = require('express-useragent');
+let cors = require('cors');
 
 // Plugins
+app.use(cors());
 require('./ddos')(app, config);
 require('./log')(app, config);
 
+app.use('/public', express.static('public'));
 app.use(bodyParser.json());
 app.use(useragent.express());
 // Plugins

@@ -3,3 +3,4 @@ log
 *.log
 config/*
 !config/default.json
+public/config.js
